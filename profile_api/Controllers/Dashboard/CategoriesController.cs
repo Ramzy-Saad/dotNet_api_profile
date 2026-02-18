@@ -1,9 +1,8 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿
 using Microsoft.AspNetCore.Mvc;
-using profile_api.Data;
 using profile_api.Models.Domain;
 using profile_api.Models.DTO.Dashboard.Category;
-using System.Threading.Tasks;
+using profile_api.Repositories.Dashboard.CategoryRepository;
 
 namespace profile_api.Controllers.Dashboard
 {
@@ -12,33 +11,29 @@ namespace profile_api.Controllers.Dashboard
     [Route("api/dashboard/[controller]")]
     public class CategoriesController : ControllerBase
     {
-        protected AppDbContext dbcontext;
-        public CategoriesController(AppDbContext dbcontext)
+        protected ICategoryRepository _categoryRepository;
+        public CategoriesController(ICategoryRepository categoryRepository)
         {
-            this.dbcontext = dbcontext;
+            _categoryRepository = categoryRepository;
         }
 
         // Get all Categories
         [HttpGet]
-        public IActionResult GetAll()
+        public async Task<IActionResult> GetAll()
         {
-            var categroiesDto = dbcontext.Categories
-               .Select(c => new CategoryDto
-               {
-                   Id = c.Id,
-                   Name = c.Name
-               })
+            var categoriesDto = (await _categoryRepository.GetAllAsync())
+               .Select(c => new CategoryDto { Id = c.Id, Name = c.Name })
                .ToList();
 
-            return Ok(categroiesDto);                
+            return Ok(categoriesDto);              
         }
 
         // Get category by Id
         [HttpGet]
         [Route("{id}")]
-        public IActionResult GetById(int id)
+        public async Task<IActionResult> GetById(int id)
         {
-            var category = dbcontext.Categories.Find(id);
+            var category = await _categoryRepository.GetByIdAsync(id);
             if (category == null)
             {
                 return NotFound();
@@ -60,8 +55,7 @@ namespace profile_api.Controllers.Dashboard
             {
                 Name = createCategoryDto.Name
             };
-            dbcontext.Categories.Add(newCategory);
-            await dbcontext.SaveChangesAsync();
+            await _categoryRepository.CreateAsync(newCategory);
 
             return CreatedAtAction(nameof(GetById),
                 new { id = newCategory.Id },
@@ -72,13 +66,12 @@ namespace profile_api.Controllers.Dashboard
         [HttpPut("{id}")]
         public async Task<IActionResult> Update([FromRoute]int id, [FromBody] CreateCategoryDto createCategoryDto)
         {
-            var category = await dbcontext.Categories.FindAsync(id);
+            var categoryDomain = new Category { Name = createCategoryDto.Name };
+            var category = await _categoryRepository.UpdateAsync(id, categoryDomain);
 
             if (category == null)
                 return NotFound();
 
-            category.Name = createCategoryDto.Name;
-            await dbcontext.SaveChangesAsync();
             var categoryDto = new CategoryDto()
             {
                 Id = category.Id,
@@ -91,12 +84,10 @@ namespace profile_api.Controllers.Dashboard
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete([FromRoute] int id)
         {
-            var category = await dbcontext.Categories.FindAsync(id);
+            var category = await _categoryRepository.DeleteAsync(id);
             if (category == null)
                 return NotFound();
 
-            dbcontext.Categories.Remove(category);
-            await dbcontext.SaveChangesAsync();
             var categoryDto = new CategoryDto()
             {
                 Id = category.Id,

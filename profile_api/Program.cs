@@ -1,6 +1,7 @@
 
 using Microsoft.EntityFrameworkCore;
 using profile_api.Data;
+using profile_api.Repositories.Dashboard.CategoryRepository;
 
 namespace profile_api
 {
@@ -18,7 +19,7 @@ namespace profile_api
             builder.Services.AddSwaggerGen();
             builder.Services.AddDbContext<AppDbContext>(options =>
                 options.UseSqlServer(builder.Configuration.GetConnectionString("profileConnectionString")));
-
+            builder.Services.AddScoped<ICategoryRepository, SqlCategoryRepository>();
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.
