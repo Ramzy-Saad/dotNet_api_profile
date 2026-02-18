@@ -1,4 +1,4 @@
-﻿namespace profile_api.Models.DTO.Dashboard
+﻿namespace profile_api.Models.DTO.Dashboard.Category
 {
     public class CategoryDto
     {

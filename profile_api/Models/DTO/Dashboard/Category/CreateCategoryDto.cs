@@ -1,10 +1,9 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace profile_api.Models.Domain
+namespace profile_api.Models.DTO.Dashboard.Category
 {
-    public class Category
+    public class CreateCategoryDto
     {
-        public int Id { get; set; }
         [MaxLength(100)]
         public required string Name { get; set; }
     }
