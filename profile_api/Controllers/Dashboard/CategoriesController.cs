@@ -1,4 +1,5 @@
 ﻿
+using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using profile_api.Models.Domain;
 using profile_api.Models.DTO.Dashboard.Category;
@@ -12,18 +13,21 @@ namespace profile_api.Controllers.Dashboard
     public class CategoriesController : ControllerBase
     {
         protected ICategoryRepository _categoryRepository;
-        public CategoriesController(ICategoryRepository categoryRepository)
+
+        public IMapper mapper;
+
+        public CategoriesController(ICategoryRepository categoryRepository, IMapper mapper)
         {
-            _categoryRepository = categoryRepository;
+            this._categoryRepository = categoryRepository;
+            this.mapper = mapper;
         }
 
         // Get all Categories
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
-            var categoriesDto = (await _categoryRepository.GetAllAsync())
-               .Select(c => new CategoryDto { Id = c.Id, Name = c.Name })
-               .ToList();
+            var categories = await _categoryRepository.GetAllAsync();
+            var categoriesDto = mapper.Map<List<CategoryDto>>(categories);
 
             return Ok(categoriesDto);              
         }
@@ -44,7 +48,7 @@ namespace profile_api.Controllers.Dashboard
                 Name = category.Name
             };
 
-            return Ok(categoryDto);
+            return Ok(mapper.Map<CategoryDto>(category));
         }
 
         // Create category
@@ -72,12 +76,7 @@ namespace profile_api.Controllers.Dashboard
             if (category == null)
                 return NotFound();
 
-            var categoryDto = new CategoryDto()
-            {
-                Id = category.Id,
-                Name = category.Name
-            };
-            return Ok(categoryDto);
+            return Ok(mapper.Map<CategoryDto>(category));
         }
 
         // Delete category
@@ -87,13 +86,7 @@ namespace profile_api.Controllers.Dashboard
             var category = await _categoryRepository.DeleteAsync(id);
             if (category == null)
                 return NotFound();
-
-            var categoryDto = new CategoryDto()
-            {
-                Id = category.Id,
-                Name = category.Name
-            };
-            return Ok(categoryDto);
+            return Ok(mapper.Map<CategoryDto>(category));
         }
 
     }
