@@ -55,10 +55,7 @@ namespace profile_api.Controllers.Dashboard
         [HttpPost]
         public async Task<IActionResult> Create(CreateCategoryDto createCategoryDto)
         {
-            var newCategory = new Category
-            {
-                Name = createCategoryDto.Name
-            };
+            var newCategory = mapper.Map<Category>(createCategoryDto);
             await _categoryRepository.CreateAsync(newCategory);
 
             return CreatedAtAction(nameof(GetById),
