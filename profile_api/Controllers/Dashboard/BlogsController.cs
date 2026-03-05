@@ -19,21 +19,59 @@ namespace profile_api.Controllers.Dashboard
             this.mapper = mapper;
             this.blogInterface = blogInterface;
         }
-
+         
         [HttpGet]
-        public IActionResult GetAllBlogs()
+        public async Task<IActionResult> GetAll()
         {
-            string[] blogsName = new string[] { "Blog1", "Blog2", "Blog3" };
-            return Ok(blogsName);
+            var blogs = await blogInterface.GetAllAsync();
+            return Ok(mapper.Map<List<BlogDto>>(blogs));
         }
 
-         
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] CreateBlogDto createBlogDto)
         {
             var BlogDomain = mapper.Map<Blog>(createBlogDto);
+
             await blogInterface.CreateAsync(BlogDomain);
             return Ok(mapper.Map<BlogDto>(BlogDomain));
         }
+
+
+        [HttpGet]
+        [Route("{id}")]
+        public async Task<IActionResult> GetByIdAsync(int id)
+        {
+            var BlogDomain = await blogInterface.GetByIdAsync(id);
+            if (BlogDomain == null)
+            {
+                return NotFound();
+            }
+            return Ok(mapper.Map<BlogDto>(BlogDomain));
+        }
+
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdateAsync(int id, [FromBody] CreateBlogDto createBlogDto)
+        {
+            var BlogDomain = mapper.Map<Blog>(createBlogDto);
+            var blog = await blogInterface.UpdateAsync(id, BlogDomain);
+            if (blog == null)
+            {
+                return NotFound();
+            }
+            return Ok(mapper.Map<BlogDto>(blog));
+        }
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteAsync(int id)
+        {
+            var blogDomain = await blogInterface.DeleteAsync(id);
+            if(blogDomain == null)
+            {
+                return NotFound();
+            }
+            return Ok(mapper.Map<BlogDto>(blogDomain));
+        }
+
+
     }
 }

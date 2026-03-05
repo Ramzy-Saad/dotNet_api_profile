@@ -1,4 +1,6 @@
-﻿namespace profile_api.Models.Domain
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace profile_api.Models.Domain
 {
     public class Blog
     {
@@ -11,6 +13,6 @@
         public int? CategoryId { get; set; }
 
         // navigation properities
-        public Category? Category { get; set; }
+        public required Category Category { get; set; }
     }
 }

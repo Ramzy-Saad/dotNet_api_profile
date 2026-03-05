@@ -1,4 +1,6 @@
-﻿namespace profile_api.Models.DTO.Dashboard.Blog
+﻿using profile_api.Models.DTO.Dashboard.Category;
+
+namespace profile_api.Models.DTO.Dashboard.Blog
 {
     public class BlogDto
     {
@@ -9,6 +11,8 @@
         public string? Image { get; set; }
         public Boolean Status { get; set; }
         public int? CategoryId { get; set; }
+
+        public CategoryDto? Category { get; set; }
 
     }
 }
